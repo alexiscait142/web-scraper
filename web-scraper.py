@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import csv
 
 from_date = '2019-01-01'
 to_date = '2020-06-22'
@@ -9,8 +10,8 @@ page = requests.get(URL)
 
 soup = BeautifulSoup(page.content, 'html.parser')
 
-container = soup.find('ol', class_='breathe-horizontal')
-results = container.find_all('li', class_='arxiv-result')
+container = soup.find('ol', class_='breathe-horizontal') # get container that has results
+results = container.find_all('li', class_='arxiv-result') # get each result li
 
 titles = []
 first_authors = []
@@ -34,6 +35,4 @@ for result in results:
     add_to_list(summaries, summary)
     add_to_list(pdfs, pdf)
 
-
-# print(results.prettify())
 print(pdfs)
