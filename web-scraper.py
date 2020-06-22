@@ -2,72 +2,43 @@ import requests
 from bs4 import BeautifulSoup
 import csv
 
-from_date = '2019-01-01'
-to_date = '2020-06-22'
+from_date = '1990-01-01'
+to_date = '2019-11-01'
+topic = 'math physics'
 
-URL = 'https://arxiv.org/search/?query=computer+science&searchtype=all&date-year=&date-filter_by=date_range&date-from_date={from_date}&date-to_date={to_date}&date-date_type=submitted_date&order=-submitted_date'
+if (' ' in topic):
+    new_topic = topic.replace(' ', '+')
+    URL = f'https://arxiv.org/search/?query={new_topic}&searchtype=all&date-year=&date-filter_by=date_range&date-from_date={from_date}&date-to_date={to_date}&date-date_type=submitted_date&order=-submitted_date'
+else: URL = f'https://arxiv.org/search/?query={topic}&searchtype=all&date-year=&date-filter_by=date_range&date-from_date={from_date}&date-to_date={to_date}&date-date_type=submitted_date&order=-submitted_date'
+
 page = requests.get(URL)
 
 soup = BeautifulSoup(page.content, 'html.parser')
 
-container = soup.find('ol', class_='breathe-horizontal') # get container that has results
-results = container.find_all('li', class_='arxiv-result') # get each result li
-
-# titles = []
-# first_authors = []
-# last_authors = []
-# summaries = []
-# pdfs = []
+container = soup.find('ol', class_='breathe-horizontal')
+results = container.find_all('li', class_='arxiv-result')
 
 results_list = []
 
-# def add_to_list(column, string):
-#     column.append(string.replace('\n', ' ').strip())
-
-# def fix_string(string):
-#     string.replace('\n', ' ').strip()
-
 for result in results:
-    title=result.find('p', class_='title').text # get title
-    authors=result.find('p', class_='authors').text.replace('Authors:', '') # get all authors
-    first_author=authors.split(', ')[0] # get first author
-    last_author=authors.split(', ')[-1] # get last author
-    summary=result.find('p', class_='abstract').text.replace('△ Less', ' ').replace('▽ More', ' ').replace('Abstract:', ' ') # get summary/abstract
-    pdf=result.find('div', class_='is-marginless').find('p', class_='list-title').find('span').find('a', text='pdf')['href'] # get pdf link
+    title=result.find('p', class_='title').text
+    authors=result.find('p', class_='authors').text.replace('Authors:', '')
+    first_author=authors.split(', ')[0]
+    last_author=authors.split(', ')[-1]
+    summary=result.find('p', class_='abstract').text.replace('△ Less', ' ').replace('▽ More', ' ').replace('Abstract:', ' ')
+    pdf=result.find('div', class_='is-marginless').find('p', class_='list-title').find('span').find('a', text='pdf', href=True)
     
     paper = {
         "Title": title.replace('\n', ' ').strip(), 
         "First Author": first_author.replace('\n', ' ').strip(), 
         "Last Author": last_author.replace('\n', ' ').strip(), 
         "Summary": summary.replace('\n', ' ').strip(),
-        "PDF": pdf.replace('\n', ' ').strip()
+        "PDF": pdf['href'] if pdf else 'N/A'
     }
-    
-    # add_to_list(titles, title)
-    # add_to_list(first_authors, first_author)
-    # add_to_list(last_authors, last_author)
-    # add_to_list(summaries, summary)
-    # add_to_list(pdfs, pdf)
 
     results_list.append(paper)
 
-# print(results_list)
-
-# i = 0
-# while i < len(results_list):
-#     print(type(results_list[i].items()))
-#     i += 1
-
-# data_list = []
-# data = {}
-# i = 0
-# while i < len(titles):
-#     data[titles[i]] = {'Title': titles[i], 'First Author': first_authors[i], 'Last Author': last_authors[i], 'Summary': summaries[i], 'PDF': pdfs[i]}
-#     i += 1
-
-# print(data.items())
-
-with open('papers.csv', 'w') as out_file:
+with open('papers.csv', 'w', newline='') as out_file:
     headers = [
         "Title",
         "First Author",
@@ -80,5 +51,5 @@ with open('papers.csv', 'w') as out_file:
     i = 0
     while i < len(results_list):
         for row in results_list[i]:
-            writer.writerow(row)
+            writer.writerow({row: results_list[i][row]})
         i += 1
