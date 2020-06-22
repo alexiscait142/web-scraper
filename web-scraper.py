@@ -35,4 +35,23 @@ for result in results:
     add_to_list(summaries, summary)
     add_to_list(pdfs, pdf)
 
-print(pdfs)
+data = {}
+i = 0
+while i < len(titles):
+    data[titles[i]] = {'First Author': first_authors[i], 'Last Author': last_authors[i], 'Summary': summaries[i], 'PDF': pdfs[i]}
+    i += 1
+
+# data[titles[0]] = {'First Author': first_authors[0], 'Last Author': last_authors[0], 'Summary': summaries[0], 'PDF': pdfs[0]}
+
+print(data)
+
+# with open('papers.csv', 'w') as out_file:
+#     headers = [
+#         "Title",
+#         "First Author",
+#         "Last Author",
+#         "Summary",
+#         "PDF Link"
+#     ]
+#     writer = csv.DictWriter(out_file, headers)
+#     writer.writeheader()
