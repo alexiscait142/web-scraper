@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import csv
 
 from_date = '1990-01-01'
-to_date = '2019-11-01'
-topic = 'math physics'
+to_date = '2017-11-01'
+topic = 'computer science'
 
 if (' ' in topic):
     new_topic = topic.replace(' ', '+')
@@ -15,11 +15,12 @@ page = requests.get(URL)
 
 soup = BeautifulSoup(page.content, 'html.parser')
 
+container = soup.find('main', class_='container')
 container = soup.find('ol', class_='breathe-horizontal')
 results = container.find_all('li', class_='arxiv-result')
 
-results_list = []
 
+results_list = []
 for result in results:
     title=result.find('p', class_='title').text
     authors=result.find('p', class_='authors').text.replace('Authors:', '')
@@ -38,7 +39,7 @@ for result in results:
 
     results_list.append(paper)
 
-with open('papers.csv', 'w', newline='') as out_file:
+with open('papers.csv', 'w') as out_file:
     headers = [
         "Title",
         "First Author",
@@ -46,10 +47,8 @@ with open('papers.csv', 'w', newline='') as out_file:
         "Summary",
         "PDF"
     ]
-    writer = csv.DictWriter(out_file, headers)
+    writer = csv.DictWriter(out_file, lineterminator='\n', fieldnames=headers)
     writer.writeheader()
     i = 0
-    while i < len(results_list):
-        for row in results_list[i]:
-            writer.writerow({row: results_list[i][row]})
-        i += 1
+    for paper in results_list:
+        writer.writerow(paper)
