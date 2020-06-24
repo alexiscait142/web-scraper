@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import csv
 
 from_date = '2000-01-01'
-to_date = '2017-11-01'
-topic = 'physics'
+to_date = '2020-11-01'
+topic = 'math'
 
 if (' ' in topic):
     new_topic = topic.replace(' ', '+')
@@ -23,7 +23,7 @@ if error:
     error_message = soup.find('div', class_='box').find_all('div', class_='is-warning')
     for err in error_message:
         errors.append({"Error Message": err.text.replace('\n', ' ')})
-    with open('Errors.csv', 'w') as out_file:
+    with open('Papers.csv', 'w') as out_file:
         headers = [
             "Error Message"
         ]
@@ -31,7 +31,7 @@ if error:
         writer.writeheader()
         for err in errors:
             writer.writerow(err)
-    print("There was a problem with your request. See the 'Errors.csv' for details.")
+    print("There was a problem with your request. See the 'Papers.csv' for details.")
 elif container:
     results = container.find_all('li', class_='arxiv-result')
 
